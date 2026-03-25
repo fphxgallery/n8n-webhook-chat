@@ -292,11 +292,20 @@ class Webhook_Chat {
 	}
 
 	/**
-	 * Convert markdown links and bare URLs in a reply string to HTML <a> tags.
-	 * Runs before wp_kses so the tags survive sanitisation.
+	 * Convert markdown (bold, italic, links, bare URLs, newlines) to safe HTML.
+	 * Runs before wp_kses so all generated tags survive sanitisation.
 	 */
 	private static function linkify( $text ) {
-		// 1. Markdown-style links: [label](https://…)
+		// 0. Normalise line endings
+		$text = str_replace( array( "\r\n", "\r" ), "\n", $text );
+
+		// 1. Bold: **text**
+		$text = preg_replace( '/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $text );
+
+		// 2. Italic: *text* (single asterisk, not adjacent to another *)
+		$text = preg_replace( '/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/s', '<em>$1</em>', $text );
+
+		// 3. Markdown-style links: [label](https://…)
 		$text = preg_replace_callback(
 			'/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/',
 			function ( $m ) {
@@ -305,7 +314,7 @@ class Webhook_Chat {
 			$text
 		);
 
-		// 2. Bare URLs not already inside an href="…" attribute
+		// 4. Bare URLs not already inside an href="…" attribute
 		$text = preg_replace_callback(
 			'~(?<!href=[\'"])(?<!href=)(https?://[^\s<>\'")\]]+)~i',
 			function ( $m ) {
@@ -313,6 +322,9 @@ class Webhook_Chat {
 			},
 			$text
 		);
+
+		// 5. Newlines → <br> (after link processing so URLs aren't split)
+		$text = nl2br( $text );
 
 		return $text;
 	}
