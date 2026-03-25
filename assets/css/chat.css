@@ -1,0 +1,443 @@
+/* Webhook Chat — frontend styles */
+
+:root {
+  --wcc-primary: #6366f1;
+  --wcc-user-bg: #6366f1;
+  --wcc-user-text: #ffffff;
+  --wcc-bot-bg: #f1f5f9;
+  --wcc-bot-text: #1e293b;
+  --wcc-font-size: 14px;
+  --wcc-radius: 16px;
+  --wcc-width: 380px;
+  --wcc-height: 520px;
+  --wcc-shadow: 0 8px 32px rgba(0,0,0,.18);
+  --wcc-header-h: 68px;
+  --wcc-input-h: 62px;
+  --wcc-z: 999999;
+}
+
+/* ── Launcher ────────────────────────────────────── */
+.wcc-launcher-wrap {
+  position: fixed;
+  bottom: 24px;
+  z-index: var(--wcc-z);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wcc-launcher-wrap.pos-bottom-right { right: 24px; flex-direction: row-reverse; }
+.wcc-launcher-wrap.pos-bottom-left  { left: 24px;  flex-direction: row; }
+.wcc-launcher-wrap.pos-bottom-center {
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: row-reverse;
+}
+
+.wcc-launcher-label {
+  background: #fff;
+  color: #1e293b;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--wcc-shadow);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wcc-launcher-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--wcc-primary);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--wcc-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s ease, box-shadow .2s ease;
+  position: relative;
+}
+.wcc-launcher-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 40px rgba(0,0,0,.22);
+}
+.wcc-launcher-btn:active { transform: scale(.96); }
+
+.wcc-launcher-btn svg {
+  width: 26px;
+  height: 26px;
+  fill: #fff;
+  transition: opacity .2s, transform .2s;
+}
+.wcc-launcher-btn .wcc-icon-close {
+  position: absolute;
+  opacity: 0;
+  transform: rotate(-90deg) scale(.5);
+}
+.wcc-launcher-btn.is-open .wcc-icon-chat,
+.wcc-launcher-btn.is-open .wcc-icon-support,
+.wcc-launcher-btn.is-open .wcc-icon-bot {
+  opacity: 0;
+  transform: rotate(90deg) scale(.5);
+}
+.wcc-launcher-btn.is-open .wcc-icon-close {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+/* Unread badge */
+.wcc-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+.wcc-badge.visible { display: flex; }
+
+/* ── Chat Window ─────────────────────────────────── */
+.wcc-window {
+  position: fixed;
+  bottom: 92px;
+  width: min(var(--wcc-width), calc(100vw - 24px));
+  height: min(var(--wcc-height), calc(100vh - 100px));
+  background: #fff;
+  border-radius: var(--wcc-radius);
+  box-shadow: var(--wcc-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: var(--wcc-z);
+  transition: opacity .25s ease, transform .25s cubic-bezier(.34,1.56,.64,1);
+  transform-origin: bottom right;
+}
+.wcc-window.pos-bottom-right { right: 24px; }
+.wcc-window.pos-bottom-left  { left: 24px; transform-origin: bottom left; }
+.wcc-window.pos-bottom-center {
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  transform-origin: bottom center;
+}
+
+/* hidden / visible states */
+.wcc-window[aria-hidden="true"] {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(.85) translateY(12px);
+}
+.wcc-window.pos-bottom-center[aria-hidden="true"] {
+  transform: translateX(-50%) scale(.85) translateY(12px);
+}
+.wcc-window[aria-hidden="false"] {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+.wcc-window.pos-bottom-center[aria-hidden="false"] {
+  transform: translateX(-50%) scale(1) translateY(0);
+}
+
+/* inline embed */
+.wcc-inline-wrap .wcc-window {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  transform: none !important;
+  width: 100%;
+  max-width: var(--wcc-width);
+  height: var(--wcc-height);
+}
+.wcc-inline-wrap .wcc-launcher-wrap { display: none; }
+
+/* ── Header ──────────────────────────────────────── */
+.wcc-header {
+  height: var(--wcc-header-h);
+  background: var(--wcc-primary);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.wcc-header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255,255,255,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.wcc-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.wcc-header-avatar svg { width: 22px; height: 22px; fill: #fff; }
+.wcc-header-info { flex: 1; min-width: 0; }
+.wcc-header-title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.wcc-header-subtitle {
+  color: rgba(255,255,255,.8);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.wcc-online-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.wcc-header-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+.wcc-header-close:hover { background: rgba(255,255,255,.15); }
+.wcc-header-close svg { width: 18px; height: 18px; fill: #fff; }
+
+/* ── Messages ────────────────────────────────────── */
+.wcc-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: var(--wcc-font-size);
+  scroll-behavior: smooth;
+}
+.wcc-messages::-webkit-scrollbar { width: 4px; }
+.wcc-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+.wcc-msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  animation: wcc-fadein .25s ease;
+}
+.wcc-msg-row.user { flex-direction: row-reverse; }
+
+@keyframes wcc-fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.wcc-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--wcc-bot-bg);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wcc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.wcc-avatar svg { width: 16px; height: 16px; fill: var(--wcc-bot-text); opacity: .6; }
+.wcc-msg-row.user .wcc-avatar { display: none; }
+
+.wcc-bubble-wrap { display: flex; flex-direction: column; max-width: 78%; }
+.wcc-msg-row.user .wcc-bubble-wrap { align-items: flex-end; }
+
+.wcc-bubble {
+  padding: 9px 14px;
+  border-radius: calc(var(--wcc-radius) - 4px);
+  line-height: 1.5;
+  word-break: break-word;
+  position: relative;
+}
+.wcc-msg-row.bot  .wcc-bubble {
+  background: var(--wcc-bot-bg);
+  color: var(--wcc-bot-text);
+  border-bottom-left-radius: 4px;
+}
+.wcc-msg-row.user .wcc-bubble {
+  background: var(--wcc-user-bg);
+  color: var(--wcc-user-text);
+  border-bottom-right-radius: 4px;
+}
+
+.wcc-timestamp {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 3px;
+  padding: 0 4px;
+}
+
+/* Links inside bubbles */
+.wcc-bubble a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  word-break: break-all;
+}
+.wcc-bubble a:hover { opacity: .8; }
+.wcc-msg-row.user .wcc-bubble a { color: rgba(255,255,255,.9); }
+
+/* ── Typing Indicator ────────────────────────────── */
+.wcc-typing-row { align-items: flex-end; }
+
+.wcc-typing-bubble {
+  background: var(--wcc-bot-bg);
+  padding: 10px 14px;
+  border-radius: calc(var(--wcc-radius) - 4px);
+  border-bottom-left-radius: 4px;
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.wcc-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #94a3b8;
+  animation: wcc-bounce 1.2s infinite ease-in-out;
+}
+.wcc-dot:nth-child(2) { animation-delay: .2s; }
+.wcc-dot:nth-child(3) { animation-delay: .4s; }
+
+@keyframes wcc-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%            { transform: translateY(-6px); }
+}
+
+/* ── Input Area ──────────────────────────────────── */
+.wcc-input-area {
+  min-height: var(--wcc-input-h);
+  border-top: 1px solid #e2e8f0;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.wcc-input {
+  flex: 1;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 8px 16px;
+  font-size: var(--wcc-font-size);
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  line-height: 1.4;
+  transition: border-color .15s;
+  background: #f8fafc;
+  color: #1e293b;
+  max-height: 100px;
+  overflow-y: hidden;
+}
+.wcc-input:focus { border-color: var(--wcc-primary); background: #fff; }
+.wcc-input::placeholder { color: #94a3b8; }
+
+.wcc-send-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--wcc-primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform .15s, background .15s;
+}
+.wcc-send-btn:hover { transform: scale(1.08); }
+.wcc-send-btn:active { transform: scale(.94); }
+.wcc-send-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.wcc-send-btn svg { width: 18px; height: 18px; fill: #fff; }
+
+/* ── Error notice ────────────────────────────────── */
+.wcc-error-row .wcc-bubble {
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 480px) {
+  .wcc-window {
+    width: 100vw !important;
+    height: calc(100dvh - 80px) !important;
+    bottom: 80px;
+    right: 0 !important;
+    left: 0 !important;
+    border-radius: var(--wcc-radius) var(--wcc-radius) 0 0;
+    transform: none !important;
+  }
+  .wcc-window[aria-hidden="true"] {
+    transform: translateY(20px) !important;
+  }
+  .wcc-launcher-wrap {
+    right: 16px !important;
+    bottom: 16px !important;
+    left: auto !important;
+    transform: none !important;
+  }
+}
+
+/* ── Embed / iframe mode ─────────────────────────────
+   Applied when the chat is loaded inside an <iframe> via /?wcc_embed=1
+   The iframe-page.php template also inlines these for certainty.
+──────────────────────────────────────────────────── */
+body.wcc-embed-page {
+  margin: 0; padding: 0;
+  height: 100%; overflow: hidden;
+  background: #fff;
+}
+
+body.wcc-embed-page .wcc-chat-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+/* Always-visible, full-size window */
+body.wcc-embed-page .wcc-window {
+  position: static !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: auto !important;
+  flex: 1;
+}
+
+/* No launcher in embed mode */
+body.wcc-embed-page .wcc-launcher-wrap { display: none !important; }
